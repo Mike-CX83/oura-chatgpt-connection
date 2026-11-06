@@ -1,39 +1,47 @@
 # Oura for ChatGPT
 
-Documentation for a privately operated, single-user Oura MCP connection to personal ChatGPT through an OpenAI Secure MCP Tunnel, independent of any dashboard.
+A privately operated Oura MCP connection to personal ChatGPT through an OpenAI Secure MCP Tunnel. It is independent of any dashboard application.
 
-This public repository contains documentation only, never credentials or health records.
+This public repository contains documentation and a small configuration adapter only. Credentials, health records, tunnel IDs and private runtime configuration must never be committed here.
 
-## Status
+## Verified setup status
 
-Oura application registration was verified complete on November 6, 2026. Runtime installation, OAuth authorization, a separate Oura tunnel, ChatGPT registration and a live tool read remain incomplete. The application creation screen is not proof of data access. Existing unrelated connections remain unchanged.
+As of November 6, 2026:
 
-The current automation shell cannot download packages or open a local listener. The operator must perform local installation in their own Terminal unless an authorized execution environment becomes available.
+- The Oura application was registered and authorized for all eleven selected data categories.
+- Application credentials and OAuth tokens were saved in separate local files with owner-only permissions.
+- `mcp-oura==0.4.0` was installed in an isolated environment. Version 0.4.1 existed in the source tree but was not published on PyPI when installation was attempted.
+- The synthetic API check succeeded.
+- A local MCP initialization and tool-discovery test succeeded with installed MCP SDK 2.3.0.
+- Six tools were discovered: `oura_collections`, `oura_query`, `oura_today`, `oura_compare`, `oura_relate`, and `oura_check`.
+- A separate OpenAI tunnel was created in the browser and attached with the existing runtime credential. The operator's Terminal reported the Oura runtime ready.
+- Oura Personal was added to personal ChatGPT. A separate ChatGPT test conversation reported a successful authenticated API check and completed bounded sleep queries. Health results are intentionally excluded from this public repository.
+
+Limits: this is not an independent security audit. Automatic token refresh is implemented upstream but has not been exercised through a real expiration/refresh cycle in this setup. Startup after a Mac reboot has not been verified. Successful API connectivity does not prove that every data collection contains records or that all historical data is available.
 
 ## Components
 
-Selected for evaluation: [proscar87/oura-mcp](https://github.com/proscar87/oura-mcp), distribution `mcp-oura`, source version `0.4.1`. PyPI availability of that version has not yet been verified from the installation environment.
+- Oura API and account-owner OAuth consent.
+- Local [proscar87/oura-mcp](https://github.com/proscar87/oura-mcp), PyPI distribution `mcp-oura` version 0.4.0.
+- `oura_local.py`, a small adapter for separate local credential storage and authorization requesting all available scopes using Oura's documented blank-scope behavior. It uses Oura's documented developer authorization URL and reuses the package's callback, state verification and token exchange.
+- OpenAI Secure MCP Tunnel connecting the local service to personal ChatGPT.
 
-The planned route is Oura API to a local MCP service, then an OpenAI Secure MCP Tunnel to personal ChatGPT. No dashboard dependency.
+The adapter passed offline checks for credential file and directory permissions, configuration reload, environment isolation, scope handling, redirect URL and rejection of a mismatched OAuth state. Tests used synthetic credentials only.
 
-Selection does not constitute an independent security audit. Check the installed artifact, verify synthetic mode, and verify authorization and token refresh before claiming the connection works. Source review found that the OAuth scope list contains eight legacy scopes, while the registration portal exposes eleven categories; reconcile and test scope coverage before claiming all categories are accessible. The new-portal token fallback is explicitly not live-verified by the source project's own comments.
+## Local operation
 
-## Registration
+The selected runtime location is `~/.local/share/oura-chatgpt`. It contains the isolated virtual environment, adapter, protected application and token files, and dedicated tunnel profile. The tunnel alias is `oura`.
 
-Display name: Oura for ChatGPT
+Inspect runtime status with `tunnel-client runtimes status oura`. The local computer must remain awake, online and running the service for ChatGPT calls to succeed. Reuse the existing alias and tunnel when restarting; do not recreate the application or disturb unrelated connections.
 
-Website: https://github.com/Mike-CX83/oura-chatgpt-connection
+The browser-created ChatGPT connection uses Tunnel mode without an additional MCP OAuth layer. OpenAI tunnel access controls protect the transport, and separately stored Oura OAuth credentials authorize upstream reads. This is not a publicly exposed unauthenticated HTTP endpoint.
 
-Privacy: https://github.com/Mike-CX83/oura-chatgpt-connection/blob/main/PRIVACY.md
-
-Terms: https://github.com/Mike-CX83/oura-chatgpt-connection/blob/main/TERMS.md
-
-Callback for this implementation: `http://localhost:9876/callback/`
-
-## Documents
+## Registration documentation
 
 [Privacy notice](PRIVACY.md)
 
 [Terms of use](TERMS.md)
 
-Do not post private information in public issues.
+The local redirect registered for this implementation is `http://localhost:9876/callback/`.
+
+Do not post account identifiers, credentials, health records or private logs in public issues.
